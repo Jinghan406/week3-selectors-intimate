@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Ink Selectors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Kalam:wght@400&display=swap">
+<style>
+/* Clean hand-drawn line. Warm paper, one ink, one indigo. Every stroke is drawn by a pen: it wobbles a little, it draws on and erases backward, and on hover the line "boils" like a hand-drawn animation frame. Single light look by choice. */
+:root {
+  --paper: #fbfaf7; --card: #ffffff; --ink: #20222a; --soft: #6b6e78; --rule: #e6e3dc; --dot: #dcd8cf; --indigo: #3d4bd8;
+  --serif: "Newsreader", Georgia, serif; --sans: "DM Sans", system-ui, sans-serif; --hand: "Kalam", "Comic Sans MS", cursive;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: max(16px, 4vw); padding-block: 48px 100px; }
+.meta { font: 400 13px/1.5 var(--sans); display: flex; gap: 24px; flex-wrap: wrap; color: var(--soft); margin-bottom: 26px; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
+h1 { font: 400 clamp(64px, 11vw, 132px)/.9 var(--serif); letter-spacing: -.035em; margin: 0; position: relative; display: inline-block; }
+h1 em { font-style: italic; }
+h1 svg { position: absolute; left: -2%; bottom: -14px; width: 104%; height: 26px; overflow: visible; }
+h1 svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .9s .3s cubic-bezier(.3,.7,.2,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.lede { font: 400 15px/1.55 var(--sans); color: var(--soft); max-width: 340px; margin: 0; }
+.speed { font: 500 13px var(--sans); color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
+.speed[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; }
+
+.block { display: grid; grid-template-columns: 200px minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; padding: 28px 0; border-top: 1px solid var(--rule); }
+.label h2 { font: 400 30px/1.1 var(--serif); letter-spacing: -.02em; margin: 0 0 10px; }
+.label p { font: 400 14px/1.55 var(--sans); color: var(--soft); margin: 0; }
+.stage { position: relative; min-height: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 18px; -webkit-tap-highlight-color: transparent;
+  background: radial-gradient(circle, var(--dot) 1.1px, transparent 1.3px) 0 0 / 20px 20px, var(--card); border: 1px solid var(--rule); }
+.stage .state { position: absolute; left: 20px; bottom: 14px; font: 400 18px var(--hand); color: var(--soft); }
+.stage .state b { color: var(--indigo); font-weight: 400; }
+.side { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.list { list-style: none; margin: 0; padding: 4px 16px; position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; }
+.list li + li { border-top: 1px dashed var(--rule); }
+.row { display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 0 2px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.row .txt { flex: 1; min-width: 0; font: 500 15px/1.3 var(--sans); }
+.row .txt small { display: block; font: 400 13px/1.4 var(--sans); color: var(--soft); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ctl { position: relative; display: inline-block; flex: none; }
+.ctl input { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); margin: 0; opacity: 0; cursor: pointer; z-index: 8; }
+.ctl:has(input:focus-visible) { outline: 2px solid var(--indigo); outline-offset: 8px; border-radius: 6px; }
+.ctl svg { position: absolute; overflow: visible; left: 0; top: 0; width: 100%; height: 100%; }
+.sw { width: 3.75em; height: 1.875em; } .cb, .rd { width: 1.25em; height: 1.25em; }
+.hrow { display: flex; gap: 64px; align-items: flex-start; }
+.hrow > span { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.hrow .n { font: 400 20px var(--serif); }
+
+.spec { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 28px 0; border-top: 1px solid var(--rule); }
+.sgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.sgrid > div { padding: 18px 18px 20px; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; }
+.sgrid h3 { font: 400 20px var(--serif); margin: 0 0 12px; }
+.sgrid dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 7px 12px; font: 400 13px/1.45 var(--sans); }
+.sgrid dt { color: var(--soft); } .sgrid dd { margin: 0; font-variant-numeric: tabular-nums; min-width: 0; }
+.sw-chip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; border: 1px solid var(--rule); }
+@media (max-width: 860px) { .block, .spec { grid-template-columns: 1fr; gap: 16px; } .stage { min-height: 260px; } .hrow { gap: 36px; } }
+</style>
+
+<main class="wrap">
+  <div class="meta"><span>Advanced Interface</span><span>Week 3 — Selectors</span><span>Set 03</span><span>Tone: Intimate</span></div>
+  <div class="top">
+    <h1><em>Ink</em> line<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 3, 45 8, 70 5 S 95 4, 99 5.5" fill="none" stroke="#3d4bd8" stroke-width="2.4" stroke-linecap="round" pathLength="1"/></svg></h1>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:14px">
+      <p class="lede">Controls drawn with a pen. They ink on, erase backward, and wobble when you hover.</p>
+      <button type="button" class="speed" id="speed" aria-pressed="false">Slow motion 0.25×</button>
+    </div>
+  </div>
+
+  <section class="block" aria-labelledby="h-sw">
+    <div class="label"><h2 id="h-sw">Switch</h2><p>A pencil capsule. Turning on drags the knob across and hatches the track in indigo behind it.</p></div>
+    <label class="stage" id="sw-stage"><span class="vh">Autosave</span><span class="state" id="sw-state"></span></label>
+    <div class="side"><ul class="list" id="sw-list"></ul></div>
+  </section>
+  <section class="block" aria-labelledby="h-cb">
+    <div class="label"><h2 id="h-cb">Checkbox</h2><p>The check is one quick pen stroke that runs past the box. Unchecking erases it backward.</p></div>
+    <label class="stage" id="cb-stage"><span class="vh">Done</span><span class="state" id="cb-state"></span></label>
+    <div class="side"><ul class="list" id="cb-list"></ul></div>
+  </section>
+  <section class="block" aria-labelledby="h-rd">
+    <div class="label"><h2 id="h-rd">Radio</h2><p>Picking one circles it with a pen loop and scribbles the dot in. The old loop erases.</p></div>
+    <div class="stage" id="rd-stage" role="radiogroup" aria-label="Nib"><span class="state" id="rd-state"></span></div>
+    <div class="side"><ul class="list" id="rd-list" role="radiogroup" aria-labelledby="h-rd"></ul></div>
+  </section>
+
+  <section class="spec" aria-label="Spec">
+    <div class="label"><h2>Spec</h2><p>px at 16 px = 1 em. Jitter is in control units.</p></div>
+    <div class="sgrid">
+      <div><h3>Sheet</h3><dl>
+        <dt>Paper</dt><dd><i class="sw-chip" style="background:#fbfaf7"></i>#FBFAF7 · dots 20</dd>
+        <dt>Card</dt><dd><i class="sw-chip" style="background:#fff"></i>#FFFFFF · radius 18 · 1 #E6E3DC</dd>
+        <dt>Ink</dt><dd><i class="sw-chip" style="background:#20222a"></i>#20222A</dd>
+        <dt>Accent</dt><dd><i class="sw-chip" style="background:#3d4bd8"></i>#3D4BD8, motion only</dd>
+        <dt>Labels</dt><dd>DM Sans 500 15 / 20</dd>
+        <dt>Titles</dt><dd>Newsreader 400 30 / 33</dd>
+        <dt>Notes</dt><dd>Kalam 18</dd>
+        <dt>Rows</dt><dd>64 · gap 16</dd>
+        <dt>Stroke</dt><dd>1.5 list · 2.4 hero</dd>
+        <dt>Boil</dt><dd>re-draw every 120 ms on hover</dd>
+      </dl></div>
+      <div><h3>Switch</h3><dl>
+        <dt>Track</dt><dd>60 × 30 · radius 15</dd>
+        <dt>Knob</dt><dd>Ø21 · travel 30</dd>
+        <dt>Off</dt><dd>ink outline, empty track</dd>
+        <dt>On</dt><dd>indigo hatch 45° · gap 4</dd>
+        <dt>Motion</dt><dd>spring k420 c22</dd>
+        <dt>Press</dt><dd>knob squash 1.12 × 0.9</dd>
+        <dt>Jitter</dt><dd>0.35</dd>
+      </dl></div>
+      <div><h3>Checkbox</h3><dl>
+        <dt>Box</dt><dd>20 × 20 · sketched square</dd>
+        <dt>Check</dt><dd>indigo · 2.4 list / 5 hero · round cap</dd>
+        <dt>On</dt><dd>draw 340 ms ease-out, runs 2 past the box</dd>
+        <dt>Off</dt><dd>erase backward 200 ms</dd>
+        <dt>Press</dt><dd>scale 0.94</dd>
+        <dt>Jitter</dt><dd>0.3</dd>
+      </dl></div>
+      <div><h3>Radio</h3><dl>
+        <dt>Ring</dt><dd>Ø17</dd>
+        <dt>Dot</dt><dd>spiral scribble Ø8 · 3 turns</dd>
+        <dt>Loop</dt><dd>indigo Ø25 · 1.15 turns</dd>
+        <dt>On</dt><dd>loop 480 ms · dot 320 ms</dd>
+        <dt>Off</dt><dd>both erase 220 ms</dd>
+        <dt>Jitter</dt><dd>0.25</dd>
+      </dl></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const S = { speed: 1 };
+  const R = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const easeO = u => 1 - Math.pow(1 - u, 3);
+  class Sp { constructor(x, k, c) { this.x = this.t = x; this.v = 0; this.k = k; this.c = c * (R ? 2.2 : 1); }
+    step(h) { this.v += (this.k * (this.t - this.x) - this.c * this.v) * h; this.x += this.v * h; } }
+  const NS = 'http://www.w3.org/2000/svg';
+  const E = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+  const uid = () => 'k' + Math.random().toString(36).slice(2);
+
+  /* ---------- pen geometry ---------- */
+  const rng = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const jit = (pts, r, a) => pts.map(([x, y]) => [x + (r() - .5) * 2 * a, y + (r() - .5) * 2 * a]);
+  const f = n => n.toFixed(2);
+  const curve = pts => { let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+    for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      d += `C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])} ${f(p2[1])}`; }
+    return d; };
+  const ring = (cx, cy, r, turns, n, a0, drift) => Array.from({ length: n + 1 }, (_, i) => { const u = i / n, a = a0 + u * turns * Math.PI * 2, rr = r * (1 + drift * (u - .5)); return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]; });
+  const capsule = (x, y, w, h, n, over) => { const r = h / 2, s = w - h, L = 2 * s + Math.PI * h, out = [];
+    for (let i = 0; i <= n; i++) { let d = (i / n) * (1 + over) * L % L, p;
+      if (d < s) p = [x + r + d, y];
+      else if ((d -= s) < Math.PI * r) { const a = -Math.PI / 2 + d / r; p = [x + w - r + Math.cos(a) * r, y + r + Math.sin(a) * r]; }
+      else if ((d -= Math.PI * r) < s) p = [x + w - r - d, y + h];
+      else { d -= s; const a = Math.PI / 2 + d / r; p = [x + r + Math.cos(a) * r, y + r + Math.sin(a) * r]; }
+      out.push(p); }
+    return out; };
+  const square = (a, b) => { const P = []; const c = [[a, a], [b, a], [b, b], [a, b]];
+    for (let k = 0; k < 4; k++) { const [x0, y0] = c[k], [x1, y1] = c[(k + 1) % 4]; for (let j = 0; j < 3; j++) P.push([x0 + (x1 - x0) * j / 3, y0 + (y1 - y0) * j / 3]); }
+    P.push([a + 1.2, a - .2]); P.push([a + 3, a + .1]); return P; };
+
+  class Base { constructor(zone, input) { this.input = input; this.hov = 0; this.prs = 0; this.on = input.checked; this.seed = (Math.random() * 1e6) | 0; this.bt = 0; this.dirty = true;
+      zone.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { this.hov = 1; this.bt = 0; } });
+      zone.addEventListener('pointerleave', () => { this.hov = 0; this.prs = 0; });
+      zone.addEventListener('pointerdown', () => this.prs = 1);
+      addEventListener('pointerup', () => this.prs = 0);
+      input.addEventListener('change', () => { this.on = input.checked; this.changed && this.changed(); }); }
+    boil(h) { if (!this.hov) return; this.bt -= h / S.speed; if (this.bt <= 0) { this.bt = .12; this.seed++; this.dirty = true; } } }
+
+  /* ---------- switch ---------- */
+  class Switch extends Base {
+    constructor(host, zone, input, size) { super(zone, input);
+      const el = this.el = document.createElement('span'); el.className = 'ctl sw'; el.style.fontSize = size + 'px';
+      const s = E('svg', { viewBox: '0 0 60 30' }, el); this.sw = (size > 30 ? 2.4 : 1.5) * 16 / size;
+      const defs = E('defs', {}, s), c1 = uid(), c2 = uid();
+      E('rect', { x: 1, y: 1, width: 58, height: 28, rx: 14 }, E('clipPath', { id: c1 }, defs));
+      this.rev = E('rect', { x: -2, y: -2, width: 0, height: 34 }, E('clipPath', { id: c2 }, defs));
+      this.hatch = E('path', { fill: 'none', stroke: '#3d4bd8', 'stroke-width': this.sw * .8, 'stroke-linecap': 'round' }, E('g', { 'clip-path': `url(#${c2})` }, E('g', { 'clip-path': `url(#${c1})` }, s)));
+      this.rail = E('path', { fill: 'none', stroke: '#20222a', 'stroke-width': this.sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s);
+      this.kg = E('g', {}, s); this.kfill = E('circle', { r: 10, fill: '#fff' }, this.kg);
+      this.knob = E('path', { fill: 'none', stroke: '#20222a', 'stroke-width': this.sw, 'stroke-linecap': 'round' }, this.kg);
+      el.appendChild(input); input.setAttribute('role', 'switch'); host.appendChild(el);
+      this.x = new Sp(this.on ? 1 : 0, 420, 22); this.pr = new Sp(0, 520, 26); this.ho = new Sp(0, 260, 26); }
+    draw() { const r = rng(this.seed), a = .35 * (this.hov ? 1.5 : 1);
+      this.rail.setAttribute('d', curve(jit(capsule(1, 1, 58, 28, 30, .05), r, a)));
+      this.knob.setAttribute('d', curve(jit(ring(0, 0, 10.5, 1.08, 14, r() * 6.28, .06), r, a * .8)));
+      let d = ''; for (let k = -30; k < 64; k += 4) { const p = jit([[k, 31], [k + 15, 15.5], [k + 31, -1]], r, .5); d += curve(p); }
+      this.hatch.setAttribute('d', d); this.dirty = false; }
+    tick(h) { this.x.t = this.on ? 1 : 0; this.x.step(h); this.pr.t = this.prs ? 1 : 0; this.pr.step(h); this.ho.t = this.hov ? 1 : 0; this.ho.step(h); this.boil(h); }
+    render() { if (this.dirty) this.draw(); const x = this.x.x, cx = 15 + x * 30, p = this.pr.x, v = clamp(Math.abs(this.x.v) / 12, 0, .18);
+      this.kg.setAttribute('transform', `translate(${f(cx)} 15) scale(${f(1 + .12 * p + v)} ${f(1 - .1 * p - v * .5)}) translate(0 ${f(-1.2 * this.ho.x)})`);
+      this.rev.setAttribute('width', f(Math.max(0, cx + 2)));
+      this.hatch.setAttribute('opacity', f(clamp(x * 3)));
+      this.input.setAttribute('aria-checked', this.on); }
+    label() { return this.on ? '<b>on</b> — saving as you go' : 'off'; }
+  }
+
+  /* ---------- checkbox ---------- */
+  class Check extends Base {
+    constructor(host, zone, input, size) { super(zone, input);
+      const el = this.el = document.createElement('span'); el.className = 'ctl cb'; el.style.fontSize = size + 'px';
+      const s = E('svg', { viewBox: '0 0 20 20' }, el); this.sw = (size > 30 ? 2.4 : 1.5) * 16 / size;
+      this.box = E('path', { fill: 'none', stroke: '#20222a', 'stroke-width': this.sw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s);
+      this.chk = E('path', { fill: 'none', stroke: '#3d4bd8', 'stroke-width': (size > 30 ? 5 : 2.4) * 16 / size, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, s);
+      el.appendChild(input); host.appendChild(el);
+      this.t = this.on ? 1 : 0; this.pr = new Sp(0, 520, 26); }
+    draw() { const r = rng(this.seed), a = .3 * (this.hov ? 1.5 : 1);
+      this.box.setAttribute('d', curve(jit(square(1.5, 18.5), r, a)));
+      this.chk.setAttribute('d', curve(jit([[4.2, 10.4], [6.4, 12.6], [8.4, 15], [12.5, 8.5], [16.5, 3.2], [20.5, -1.2]], r, a * .6))); this.dirty = false; }
+    tick(h) { this.t = this.on ? Math.min(1, this.t + h / .34) : Math.max(0, this.t - h / .2); this.pr.t = this.prs ? 1 : 0; this.pr.step(h); this.boil(h); }
+    render() { if (this.dirty) this.draw();
+      const cp = this.on ? easeO(this.t) : this.t; this.chk.setAttribute('stroke-dashoffset', f(1 - cp)); this.chk.setAttribute('opacity', cp > .01 ? 1 : 0);
+      this.el.style.transform = `scale(${f(1 - .06 * this.pr.x)}) rotate(${f(-2 * this.pr.x)}deg)`; }
+    label() { return this.on ? (this.t >= 1 ? '<b>done!</b>' : 'ticking…') : (this.t <= 0 ? 'to do' : 'erasing…'); }
+  }
+
+  /* ---------- radio ---------- */
+  class Radio {
+    constructor(hosts, inputs, size, zones) { this.size = size; this.hi = -1; this.prs = 0; this.sel = inputs.findIndex(i => i.checked);
+      const sw = (size > 30 ? 2.4 : 1.5) * 16 / size;
+      this.items = inputs.map((inp, i) => { const el = document.createElement('span'); el.className = 'ctl rd'; el.style.fontSize = size + 'px';
+        const s = E('svg', { viewBox: '0 0 20 20' }, el);
+        const ring = E('path', { fill: 'none', stroke: '#20222a', 'stroke-width': sw, 'stroke-linecap': 'round' }, s);
+        const dot = E('path', { fill: 'none', stroke: '#20222a', 'stroke-width': 1.9, 'stroke-linecap': 'round', pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, s);
+        const loop = E('path', { fill: 'none', stroke: '#3d4bd8', 'stroke-width': sw * 1.15, 'stroke-linecap': 'round', pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, s);
+        el.appendChild(inp); hosts[i].appendChild(el);
+        const z = zones ? zones[i] : el, it = { el, ring, dot, loop, l: i === this.sel ? 1 : 0, d: i === this.sel ? 1 : 0, delay: 0, seed: (Math.random() * 1e6) | 0, bt: 0, dirty: true, pr: new Sp(0, 520, 26) };
+        z.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { this.hi = i; it.bt = 0; } });
+        z.addEventListener('pointerleave', () => { if (this.hi === i) this.hi = -1; this.prs = 0; });
+        z.addEventListener('pointerdown', () => this.prs = 1);
+        inp.addEventListener('change', () => { if (inp.checked) this.select(i); });
+        return it; });
+      addEventListener('pointerup', () => this.prs = 0); }
+    select(i) { if (i === this.sel) return; this.sel = i; this.items[i].delay = .1; this.items[i].seed += 7; this.items[i].dirty = true; }
+    draw(it, hov) { const r = rng(it.seed), a = .25 * (hov ? 1.6 : 1);
+      it.ring.setAttribute('d', curve(jit(ring(10, 10, 8.5, 1.06, 16, r() * 6.28, .04), r, a)));
+      it.loop.setAttribute('d', curve(jit(ring(10, 10, 12.2, 1.15, 18, -2.2 + r() * .6, .12), r, a * 1.4)));
+      const sp = Array.from({ length: 26 }, (_, k) => { const u = k / 25, an = u * 6 * Math.PI + r(); return [10 + Math.cos(an) * 3.6 * u, 10 + Math.sin(an) * 3.6 * u]; });
+      it.dot.setAttribute('d', curve(jit(sp, r, .2))); it.dirty = false; }
+    tick(h) { this.items.forEach((it, i) => { const on = i === this.sel;
+        if (on) { if (it.delay > 0) it.delay -= h; else { it.l = Math.min(1, it.l + h / .48); it.d = Math.min(1, it.d + h / .32); } }
+        else { it.l = Math.max(0, it.l - h / .22); it.d = Math.max(0, it.d - h / .22); }
+        it.pr.t = this.prs && this.hi === i ? 1 : 0; it.pr.step(h);
+        if (this.hi === i) { it.bt -= h / S.speed; if (it.bt <= 0) { it.bt = .12; it.seed++; it.dirty = true; } } }); }
+    render() { this.items.forEach((it, i) => { if (it.dirty) this.draw(it, this.hi === i);
+      const on = i === this.sel;
+      const lp = on ? easeO(it.l) : it.l, dp = on ? easeO(it.d) : it.d;
+      it.loop.setAttribute('stroke-dashoffset', f(1 - lp)); it.loop.setAttribute('opacity', lp > .01 ? 1 : 0);
+      it.dot.setAttribute('stroke-dashoffset', f(1 - dp)); it.dot.setAttribute('opacity', dp > .01 ? 1 : 0);
+      it.el.style.transform = `scale(${f(1 - .08 * it.pr.x)})`; }); }
+  }
+
+  /* ---------- page ---------- */
+  const mk = (type, id, checked, name) => { const i = document.createElement('input'); i.type = type; i.id = id; if (name) i.name = name; i.checked = !!checked; return i; };
+  const row = (list, t, s, ctlFirst) => { const li = document.createElement('li'); li.innerHTML = `<label class="row"><span class="txt">${t}<small>${s}</small></span></label>`; document.getElementById(list).appendChild(li); return li.firstChild; };
+
+  const swStage = document.getElementById('sw-stage');
+  const swHero = new Switch(swStage, swStage, mk('checkbox', 'sw-hero', false), 40); swStage.insertBefore(swHero.el, swStage.querySelector('.state'));
+  const swRows = [['Autosave drafts', 'Every 30 seconds', 1], ['Show margin notes', 'Beside each page', 0], ['Pencil pressure', 'Line weight follows the pen', 0]]
+    .map(([t, s, c], i) => { const r = row('sw-list', t, s); return new Switch(r, r, mk('checkbox', 'sw' + i, c), 16); });
+
+  const cbStage = document.getElementById('cb-stage');
+  const cbHero = new Check(cbStage, cbStage, mk('checkbox', 'cb-hero', false), 64); cbStage.insertBefore(cbHero.el, cbStage.querySelector('.state'));
+  const cbRows = [['Read the brief', 'Week 3 · Selectors', 1], ['Pin the moodboard', 'Twelve references', 0], ['First sketches', 'Thumbnails, not finals', 1]]
+    .map(([t, s, c], i) => { const r = row('cb-list', t, s); const ck = new Check(r, r, mk('checkbox', 'cb' + i, c), 16); r.insertBefore(ck.el, r.firstChild); return ck; });
+
+  const rdStage = document.getElementById('rd-stage');
+  const hrow = document.createElement('div'); hrow.className = 'hrow'; rdStage.insertBefore(hrow, rdStage.querySelector('.state'));
+  const N = ['Fine', 'Medium', 'Bold'];
+  const hh = N.map(n => { const w = document.createElement('span'); const s2 = document.createElement('span'); w.appendChild(s2); const t = document.createElement('span'); t.className = 'n'; t.textContent = n; w.appendChild(t); hrow.appendChild(w); return s2; });
+  const hIn = N.map((n, i) => { const x = mk('radio', 'rdh' + i, i === 0, 'nib-hero'); x.setAttribute('aria-label', n); return x; });
+  const rdHero = new Radio(hh, hIn, 40);
+  const rows = [], slots = [];
+  [['Fine', '0.3 mm nib'], ['Medium', '0.5 mm nib'], ['Bold', '0.8 mm nib']].forEach(([t, s], i) => {
+    const li = document.createElement('li'); li.innerHTML = `<label class="row" for="rd${i}"><span class="slot"></span><span class="txt">${t}<small>${s}</small></span></label>`; document.getElementById('rd-list').appendChild(li);
+    rows.push(li.firstChild); slots.push(li.querySelector('.slot')); });
+  const rdL = new Radio(slots, [0, 1, 2].map(i => mk('radio', 'rd' + i, i === 1, 'nib')), 16, rows);
+
+  const comps = [swHero, ...swRows, cbHero, ...cbRows, rdHero, rdL];
+  const st = { sw: document.getElementById('sw-state'), cb: document.getElementById('cb-state'), rd: document.getElementById('rd-state') };
+  document.getElementById('speed').onclick = e => { S.speed = S.speed === 1 ? .25 : 1; e.currentTarget.setAttribute('aria-pressed', S.speed !== 1); };
+  let last = performance.now(); const STEP = 1 / 240;
+  function frame(now) { const dt = Math.min(.05, (now - last) / 1000) * S.speed; last = now; const n = Math.max(1, Math.ceil(dt / STEP)), h = dt / n;
+    for (let i = 0; i < n; i++) for (const c of comps) c.tick(h);
+    for (const c of comps) c.render();
+    st.sw.innerHTML = swHero.label(); st.cb.innerHTML = cbHero.label(); st.rd.innerHTML = `nib: <b>${N[rdHero.sel].toLowerCase()}</b>`;
+    requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+  const fire = (inp, v) => { inp.checked = v; inp.dispatchEvent(new Event('change')); };
+  setTimeout(() => fire(swHero.input, true), 900); setTimeout(() => fire(cbHero.input, true), 1400); setTimeout(() => fire(hIn[2], true), 1900);
+})();
+</script>
+
+</body>
+</html>
